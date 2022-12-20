@@ -15,6 +15,10 @@ export function validateSignUpModel(req, res, next) {
   if (error) {
     res.status(422).send(error.details.map((d) => d.message));
   }
+  const { password, confirmPassword } = req.body;
+  if (password !== confirmPassword) {
+    res.sendStatus(422);
+  }
   res.locals.user = req.body;
   next();
 }
