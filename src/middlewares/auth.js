@@ -1,4 +1,4 @@
-import bcrypt, { hashSync } from "bcrypt";
+import { hashSync } from "bcrypt";
 import connection from "../database/shortly.js";
 
 export async function userExistsSignUp(req, res, next) {
@@ -21,7 +21,7 @@ export async function userExistsSignUp(req, res, next) {
 export function encryptPassword(req, res, next) {
   const { user } = res.locals;
   try {
-    const hashPassword = bcrypt.hashSync(user.password, 10);
+    const hashPassword = hashSync(user.password, 10);
     const hashUser = { ...user, password: hashPassword };
     res.locals.user = hashUser;
     next();
@@ -58,5 +58,23 @@ export async function userExistsSignIn(req, res, next) {
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
+  }
+}
+
+export async function authValidation(req, res, next) {
+  const { authorization } = req.headers;
+  const token = authorization?.replace("Bearer ", "");
+  if (!token) return res.sendStatus(401);
+  try {
+    const session = await connection.query(
+      `SELECT * FROM sessions WHERE token=$1`,
+      [token]
+    );
+    if (session.rowCount === 0) return res.sendStatus(401);
+    res.locals.userId = session.rows[0].userId;
+    next();
+  } catch (err) {
+    console.log(err);
+    return res.sendStatus(500);
   }
 }

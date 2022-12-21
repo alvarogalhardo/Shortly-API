@@ -1,3 +1,4 @@
+import shortenModel from "../models/shorten.js";
 import signInModel from "../models/sign-in.js";
 import signUpModel from "../models/sign-up.js";
 
@@ -20,5 +21,13 @@ export function validateSignUpModel(req, res, next) {
     res.sendStatus(422);
   }
   res.locals.user = req.body;
+  next();
+}
+
+export function validatePostModel(req,res,next){
+  const { error } = shortenModel.validate(req.body, { abortEarly: false });
+  if (error) {
+    res.status(422).send(error.details.map((d) => d.message));
+  }
   next();
 }
