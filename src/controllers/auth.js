@@ -1,5 +1,5 @@
 import connection from "../database/shortly.js";
-import dayjs from "dayjs";
+import {v4 as uuid} from 'uuid';
 
 export async function signUp(req, res) {
   const { user } = res.locals;
@@ -24,7 +24,7 @@ export async function signIn(req, res, next) {
       `INSERT INTO sessions ("userId", token) VALUES ($1, $2)`,
       [user.id, token]
     );
-    res.status(200).send(token);
+    res.status(200).send({token});
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
