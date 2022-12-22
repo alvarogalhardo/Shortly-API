@@ -43,3 +43,8 @@ export async function deleteUrl(req, res) {
     res.sendStatus(500);
   }
 }
+
+export function redirectToUrl(req,res){
+  const {url} = res.locals;
+  res.redirect(url);
+}
