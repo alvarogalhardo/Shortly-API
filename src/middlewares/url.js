@@ -8,8 +8,8 @@ export async function verifyDelete(req, res, next) {
       `SELECT "userId" FROM urls WHERE id=$1`,
       [id]
     );
-    const selectedId = rows[0].userId;
     if (rows.length === 0) return res.sendStatus(404);
+    const selectedId = rows[0].userId;
     if (selectedId !== userId) return res.sendStatus(401);
     next();
   } catch (err) {
@@ -22,7 +22,6 @@ export async function checkShortUrl(req,res,next){
   const {shortUrl} = req.params;
   try{
     const {rows} = await connection.query(`SELECT * FROM urls WHERE "shortUrl"=$1`,[shortUrl]);
-    console.log(rows.length);
     if (rows.length===0) return res.sendStatus(404);
     const {id,userId,url} = rows[0];
     res.locals.userId = userId;

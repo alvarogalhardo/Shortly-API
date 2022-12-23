@@ -6,7 +6,6 @@ export async function postUrl(req, res) {
   req.body = nanoid(6);
   const shortUrl = req.body;
   const { userId } = res.locals;
-  console.log(userId);
   try {
     await connection.query(
       `INSERT INTO urls ("userId", url, "shortUrl") VALUES ($1, $2, $3)`,
@@ -51,12 +50,13 @@ export function redirectToUrl(req, res) {
 
 export async function getUser(req, res) {
   const { userId } = res.locals;
+  console.log(userId);
   try {
     const user = await connection.query(
       `SELECT users.id, users.name, COUNT(visits."userId") AS "visitCount" FROM users JOIN visits ON users.id = visits."userId" WHERE users.id = $1 GROUP BY users.id`,
       [userId]
     );
-    console.log(user.rows[0]);
+    console.log(user);
     const urls = await connection.query(`SELECT json_agg(json_build_object('id',urls.id,'shortUrl',urls."shortUrl",'url',urls.url,'visitCount',(SELECT COUNT(visits."urlId") FROM visits WHERE visits."urlId" = urls.id))) AS "shortenedUrls" FROM urls  WHERE urls."userId" = $1`,[userId])
     const {shortenedUrls} = urls.rows[0]
     const obj = {...user.rows[0],shortenedUrls};

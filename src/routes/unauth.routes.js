@@ -29,5 +29,6 @@ unauthRouter.get(
   addVisit,
   redirectToUrl
 );
+unauthRouter.get("/ranking")
 
 export default unauthRouter;
