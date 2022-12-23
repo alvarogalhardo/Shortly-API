@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { signIn, signUp } from "../controllers/auth.js";
-import { getUrlById, redirectToUrl } from "../controllers/urls.js";
+import { getRanking, getUrlById, redirectToUrl } from "../controllers/urls.js";
 import {
   encryptPassword,
   userExistsSignIn,
@@ -29,6 +29,6 @@ unauthRouter.get(
   addVisit,
   redirectToUrl
 );
-unauthRouter.get("/ranking")
+unauthRouter.get("/ranking",getRanking)
 
 export default unauthRouter;
