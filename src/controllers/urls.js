@@ -44,7 +44,28 @@ export async function deleteUrl(req, res) {
   }
 }
 
-export function redirectToUrl(req,res){
-  const {url} = res.locals;
+export function redirectToUrl(req, res) {
+  const { url } = res.locals;
   res.redirect(url);
 }
+
+export async function getUser(req, res) {
+  const { userId } = res.locals;
+  try {
+    const user = await connection.query(
+      `SELECT users.id, users.name, COUNT(visits."userId") AS "visitCount" FROM users JOIN visits ON users.id = visits."userId" WHERE users.id = $1 GROUP BY users.id`,
+      [userId]
+    );
+    console.log(user.rows[0]);
+    const urls = await connection.query(`SELECT json_agg(json_build_object('id',urls.id,'shortUrl',urls."shortUrl",'url',urls.url,'visitCount',(SELECT COUNT(visits."urlId") FROM visits WHERE visits."urlId" = urls.id))) AS "shortenedUrls" FROM urls  WHERE urls."userId" = $1`,[userId])
+    const {shortenedUrls} = urls.rows[0]
+    const obj = {...user.rows[0],shortenedUrls};
+    res.status(200).send(obj);
+    // const {rows} = await connection.query(`SELECT users.id, users.name, COUNT(visits."userId") AS "visitCount", json_agg(json_build_object('id',urls.id,'shortUrl',urls."shortUrl",'url',urls.url,'visitCount',(SELECT COUNT(visits."urlId") FROM visits WHERE visits."urlId" = urls.id))) AS "shortenedUrls" FROM users JOIN visits ON users.id = visits."userId" JOIN urls ON urls.id = visits."urlId" WHERE users.id = 1 GROUP BY users.id`)
+    // console.log(rows[0]);
+  } catch (err) {
+    console.log(err);
+    res.sendStatus(500);
+  }
+}
+
