@@ -56,7 +56,6 @@ export async function getUser(req, res) {
       `SELECT users.id, users.name, COUNT(visits."userId") AS "visitCount" FROM users JOIN visits ON users.id = visits."userId" WHERE users.id = $1 GROUP BY users.id`,
       [userId]
     );
-    console.log(user);
     const urls = await connection.query(`SELECT json_agg(json_build_object('id',urls.id,'shortUrl',urls."shortUrl",'url',urls.url,'visitCount',(SELECT COUNT(visits."urlId") FROM visits WHERE visits."urlId" = urls.id))) AS "shortenedUrls" FROM urls  WHERE urls."userId" = $1`,[userId])
     const {shortenedUrls} = urls.rows[0]
     const obj = {...user.rows[0],shortenedUrls};
@@ -71,8 +70,7 @@ export async function getUser(req, res) {
 
 export async function getRanking(req,res){
   try{
-    // const {rows} = await connection.query(`SELECT users.id, users.name, COUNT(urls."userId") AS "linksCount", COUNT(visits."urlId") AS "visitsCount" FROM users LEFT JOIN urls ON users.id = urls."userId" LEFT JOIN visits ON urls.id = visits."urlId" GROUP BY users.id ORDER BY "visitsCount" DESC LIMIT 10`)
-    const {rows} = await connection.query(`SELECT * FROM visits`)
+    const {rows} = await connection.query(`SELECT users.id, users.name, COUNT(urls."userId") AS "linksCount", COUNT(visits."urlId") AS "visitsCount" FROM users LEFT JOIN urls ON users.id = urls."userId" LEFT JOIN visits ON urls.id = visits."urlId" GROUP BY users.id ORDER BY "visitsCount" DESC LIMIT 10`)
     res.status(200).send(rows)
   }catch(err){
     console.log(err);
