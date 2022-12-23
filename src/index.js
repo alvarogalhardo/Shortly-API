@@ -11,4 +11,6 @@ app.use(express.json());
 app.use(unauthRouter);
 app.use(authRouter);
 
-app.listen(process.env.PORT || 4000, () => console.log("running"));
+const PORT = process.env.PORT || 4000;
+
+app.listen(PORT, () => console.log(`running in port ${PORT}`));
