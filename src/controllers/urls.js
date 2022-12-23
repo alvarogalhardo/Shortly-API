@@ -70,7 +70,7 @@ export async function getUser(req, res) {
 
 export async function getRanking(req,res){
   try{
-    const {rows} = await connection.query(`SELECT users.id, users.name, COUNT(urls."userId") AS "linksCount", COUNT(visits."urlId") AS "visitsCount" FROM users LEFT JOIN urls ON users.id = urls."userId" LEFT JOIN visits ON urls.id = visits."urlId" GROUP BY users.id ORDER BY "visitsCount" DESC LIMIT 10`)
+    const {rows} = await connection.query(`SELECT users.id, users.name, count(urls.url) as "linksCount", (select COUNT(visits.id) from visits where visits."userId"=users.id) as "visitsCount" from users left join urls on urls."userId"=users.id group by users.id order by "visitsCount" desc limit 10`)
     res.status(200).send(rows)
   }catch(err){
     console.log(err);
